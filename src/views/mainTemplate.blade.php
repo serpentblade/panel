@@ -20,7 +20,7 @@
     <div id="wrapper">
         <!-- Navigation -->
         <nav class="navbar navbar-default navbar-static-top " role="navigation" style="margin-bottom: 0">
-            
+
             <!-- /.navbar-header -->
              <div class="navbar-header">
                 <button type="button" class="navbar-toggle collapsed btn-resp-sidebar" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
@@ -29,10 +29,10 @@
                   <span class="icon-bar"></span>
                   <span class="icon-bar"></span>
                 </button>
-                
+
               </div>
 
-            
+
             <!-- /.navbar-top-links -->
 
             <div class="navbar-default sidebar " role="navigation">
@@ -62,18 +62,15 @@
                               </li>
                           @endforeach
                       </ul>
-
-                        </li>
-                    </ul>
                 </div>
-               
-             
+
+
             </div>
             <!-- /.navbar-static-side -->
         </nav>
-        <div class="powered-by"><a href="http://laravelpanel.com">Thank you for using LaravelPanel.</a></div> 
+        <div class="powered-by"><a href="http://laravelpanel.com">Thank you for using LaravelPanel.</a></div>
         <div id="page-wrapper">
-            
+
 
             <!-- Menu Bar -->
             <div class="row">
@@ -81,7 +78,7 @@
                     <div class="btn-group" role="group" aria-label="...">
                         <div class="btn-group" role="group">
                             <a  type="button" class="btn btn-default dropdown-toggle main-link" data-toggle="dropdown" aria-expanded="false">
-                                {{ Lang::get('panel::fields.settings') }} 
+                                {{ Lang::get('panel::fields.settings') }}
                                 <span class="caret"></span>
                             </a>
                           <ul class="dropdown-menu" role="menu">
@@ -93,9 +90,9 @@
                       </div>
                 </div>
             </div>
-            
+
             @yield('page-wrapper')
-            
+
         </div>
         </div>
         <!-- /#page-wrapper -->
