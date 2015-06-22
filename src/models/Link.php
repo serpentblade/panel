@@ -46,6 +46,6 @@ class Link extends Model {
     }
 
 
-    protected $fillable = array('url', 'display', 'main');
+    protected $fillable = array('url', 'display', 'main', 'pattern');
 
 }
