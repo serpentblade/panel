@@ -34,25 +34,34 @@ class Admin extends Model implements AuthenticatableContract, CanResetPasswordCo
     {
         return $this->password;
     }
-    
+
     public function getRememberToken(){
         return $this->remember_token;
     }
-    
+
     public function  setRememberToken($value){
          $this->remember_token =  $value;
     }
 
-    public function getReminderEmail(){  
+    public function getReminderEmail(){
         $email = Input::only('email');
-        return $email['email'];            
+        return $email['email'];
     }
 
 
     public function getRememberTokenName(){
         return $this->remember_token_name;
     }
-        
+
+    public function getPermissionArrayAttribute() {
+        return array_filter(explode('|', $this->permissions));
+    }
+
+    public function hasPermission($permission)
+    {
+        return in_array($permission, $this->permissionArray);
+    }
+
     protected $fillable = array('first_name', 'last_name', 'email', 'password');
 	/**
 	 * The attributes excluded from the model's JSON form.

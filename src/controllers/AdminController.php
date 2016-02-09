@@ -14,9 +14,9 @@ use \Illuminate\Http\Request;
  * @author alireza
  */
 class AdminController extends CrudController{
-    
+
     public function all($entity){
-        parent::all($entity); 
+        parent::all($entity);
 
         $this->filter = \DataFilter::source(new Admin());
         $this->filter->add('id', 'ID', 'text');
@@ -24,22 +24,22 @@ class AdminController extends CrudController{
         $this->filter->submit('search');
         $this->filter->reset('reset');
         $this->filter->build();
-                
+
         $this->grid = \DataGrid::source($this->filter);
         $this->grid->add('id','ID', true)->style("width:100px");
         $this->grid->add('first_name','first name');
         $this->addStylesToGrid();
         return $this->returnView();
     }
-    
+
     public function  edit($entity){
-        
+
         if (\Request::input('password') != null )
         {
-            $new_input = array('password' => \Hash::make(\Request::input('password'))); 
+            $new_input = array('password' => \Hash::make(\Request::input('password')));
             \Request::merge($new_input);
         }
-        
+
         parent::edit($entity);
 
         $this->edit = \DataEdit::source(new Admin());
@@ -49,7 +49,9 @@ class AdminController extends CrudController{
         $this->edit->add('email','Email', 'text')->rule('required|min:5');
         $this->edit->add('first_name', 'firstname', 'text');
         $this->edit->add('last_name', 'lastname', 'text');
-        $this->edit->add('password', 'password', 'password')->rule('required');     
+        $this->edit->add('password', 'password', 'password')->rule('required');
+        $this->edit->add('permissions', 'permissions', 'text')->rule('required');
+
         return $this->returnEditView();
     }
 }
