@@ -7,7 +7,9 @@ namespace Serverfireteam\Panel;
  * and open the template in the editor.
  */
 use Serverfireteam\Panel\CrudController;
-use \Illuminate\Http\Request;
+
+use Hash;
+use Request;
 /**
  * Description of PagePanel
  *
@@ -34,10 +36,22 @@ class AdminController extends CrudController{
 
     public function  edit($entity){
 
-        if (\Request::input('password') != null )
+        $showPassword = true;
+        $pass = Request::input('password');
+
+        if (trim($pass))
         {
-            $new_input = array('password' => \Hash::make(\Request::input('password')));
-            \Request::merge($new_input);
+            $new_input = array('password' => Hash::make($pass));
+            Request::merge($new_input);
+        }
+        else
+        {
+            Request::merge(['password' => null]);
+
+            if(in_array(Request::method(), ['PATCH', 'POST', 'PUT']))
+            {
+                $showPassword = false;
+            }
         }
 
         parent::edit($entity);
@@ -49,7 +63,12 @@ class AdminController extends CrudController{
         $this->edit->add('email','Email', 'text')->rule('required|min:5');
         $this->edit->add('first_name', 'firstname', 'text');
         $this->edit->add('last_name', 'lastname', 'text');
-        $this->edit->add('password', 'password', 'password')->rule('required');
+
+        // hate to do this but the rapyd framework sucks something awful
+        if($showPassword)
+        {
+            $this->edit->add('password', 'password', 'password');
+        }
         $this->edit->add('permissions', 'permissions', 'text')->rule('required');
 
         return $this->returnEditView();
