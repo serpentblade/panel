@@ -40,6 +40,11 @@
             "Serverfireteam\\Panel": "src/"
         }
     },
-    "minimum-stability": "dev"
-
+    "minimum-stability": "dev",
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/serpentblade/rapyd-laravel"
+        }
+    ]
 }
