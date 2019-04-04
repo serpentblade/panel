@@ -20,16 +20,21 @@ class AdminController extends CrudController{
     public function all($entity){
         parent::all($entity);
 
-        $this->filter = \DataFilter::source(new Admin());
+        $this->filter = \DataFilter::source(Admin::with('roles'));
         $this->filter->add('id', 'ID', 'text');
-        $this->filter->add('name', 'Name', 'text');
+        $this->filter->add('first_name', 'First name', 'text');
+        $this->filter->add('last_name', 'Last Name', 'text');
+        $this->filter->add('email', 'Email', 'text');
         $this->filter->submit('search');
         $this->filter->reset('reset');
         $this->filter->build();
 
         $this->grid = \DataGrid::source($this->filter);
         $this->grid->add('id','ID', true)->style("width:100px");
-        $this->grid->add('first_name','first name');
+        $this->grid->add('{{ $first_name }} {{ $last_name}}','first name');
+        $this->grid->add('email','Email');
+        $this->grid->add('{{ implode(", ", $roles->pluck("name")->all()) }}', 'Role');
+
         $this->addStylesToGrid();
         return $this->returnView();
     }
@@ -70,6 +75,7 @@ class AdminController extends CrudController{
             $this->edit->add('password', 'password', 'password');
         }
         $this->edit->add('permissions', 'permissions', 'text')->rule('required');
+        $this->edit->add('roles','Roles','checkboxgroup')->options(Role::pluck('name', 'id')->all());
 
         return $this->returnEditView();
     }

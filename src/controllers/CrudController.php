@@ -21,8 +21,12 @@ class CrudController extends Controller
         $route = \App::make('route');
         $this->lang = $lang;
         $this->route = $route;
-        $routeParamters = $route::current()->parameters();
-        $this->setEntity($routeParamters['entity']);
+        if($route = $route::current())
+        {
+            $routeParamters = $route->parameters();
+            if(isset($routeParamters['entity']))
+                $this->setEntity($routeParamters['entity']);
+        }
     }
 
     /**
@@ -55,11 +59,7 @@ class CrudController extends Controller
 
         $appHelper = new libs\AppHelper;
 
-        if ( in_array($entity, Link::getMainUrls()) ) {
-            $modelClass = 'Serverfireteam\\Panel\\'.$entity;
-        } else {
-            $modelClass = $appHelper->getNameSpace().$this->getEntity();
-        }
+        $modelClass = $appHelper->getModel($entity);
 
         return new $modelClass;
     }
@@ -82,38 +82,35 @@ class CrudController extends Controller
         $this->helper_message = $message;
     }
 
+    /**
+     * Check whether a link is defined for the given URL / model name
+     * @param $url
+     * @throws \Exception
+     */
+    private function validateEntity($url) {
+        if (!\Links::all()->pluck('url')->contains($url)) {
+            throw new \Exception('This url is not set yet!');
+        }
+    }
+
     public function returnView()
     {
-        $configs = \Serverfireteam\Panel\Link::returnUrls();
-
-        if (!isset($configs) || $configs == null) {
-            throw new \Exception('NO URL is set yet !');
-        } else if (!in_array($this->entity, $configs)) {
-            throw new \Exception('This url is not set yet!');
-        } else {
-            return \View::make('panelViews::all', array(
-             'grid' 	      => $this->grid,
-             'filter' 	      => $this->filter,
-             'title'          => $this->entity ,
-	     'current_entity' => $this->entity,
-	     'import_message' => (\Session::has('import_message')) ? \Session::get('import_message') : ''
-            ));
-        }
+        $this->validateEntity($this->entity);
+        return \View::make('panelViews::all', array(
+         'grid'           => $this->grid,
+         'filter'         => $this->filter,
+         'title'          => $this->entity ,
+         'current_entity' => $this->entity,
+         'import_message' => (\Session::has('import_message')) ? \Session::get('import_message') : ''
+        ));
     }
 
     public function returnEditView()
     {
-        $configs = \Serverfireteam\Panel\Link::returnUrls();
-
-        if (!isset($configs) || $configs == null) {
-            throw new \Exception('NO URL is set yet !');
-        } else if (!in_array($this->entity, $configs)) {
-            throw new \Exception('This url is not set yet !');
-        } else {
-           return \View::make('panelViews::edit', array('title'		 => $this->entity,
-					                'edit' 		 => $this->edit,
-							'helper_message' => $this->helper_message));
-        }
+        $this->validateEntity($this->entity);
+        return \View::make('panelViews::edit', array('title'		 => $this->entity,
+                                'edit' 		 => $this->edit,
+                        'helper_message' => $this->helper_message));
     }
 
     public function finalizeFilter() {

@@ -4,10 +4,14 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Foundation\AliasLoader;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Translation;
+use Serverfireteam\Panel\Facades\LinksFacade;
 use Serverfireteam\Panel\libs;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Foundation;
 use Serverfireteam\Panel\Commands;
+use Serverfireteam\Panel\Links\ConfigLinkProvider;
+use Serverfireteam\Panel\Links\DbLinkProvider;
+use Serverfireteam\Panel\Links\LinkProvider;
 
 class PanelServiceProvider extends ServiceProvider
 {
@@ -17,7 +21,7 @@ class PanelServiceProvider extends ServiceProvider
     {
         $this->publishes([
             __DIR__.'/config/elfinder.php' => config_path('elfinder.php'),
-        ]);
+            ]);
 
         // register zofe\rapyd
         $this->app->register('Zofe\Rapyd\RapydServiceProvider');
@@ -26,9 +30,15 @@ class PanelServiceProvider extends ServiceProvider
         $this->app->register('Maatwebsite\Excel\ExcelServiceProvider');
 
     	// Barryvdh\Elfinder\ElfinderServiceProvider
-    	$this->app->register('Barryvdh\Elfinder\ElfinderServiceProvider');
+        $this->app->register('Barryvdh\Elfinder\ElfinderServiceProvider');
+        
 
-        $this->app['router']->middleware('PanelAuth', 'Serverfireteam\Panel\libs\AuthMiddleware');
+        $this->app['router']->aliasMiddleware('PanelAuth', 'Serverfireteam\Panel\libs\AuthMiddleware');
+        
+        //middleware Permission
+        $this->app['router']->aliasMiddleware(
+            'PermissionPanel', 'Serverfireteam\Panel\libs\PermissionCheckMiddleware'
+            );
 
         // set config for Auth
 
@@ -44,32 +54,47 @@ class PanelServiceProvider extends ServiceProvider
         $loader->alias('Html', 'Collective\Html\HtmlFacade');
         $loader->alias('Excel', 'Maatwebsite\Excel\Facades\Excel');
 
-        $this->app['panel::install'] = $this->app->share(function()
+        $this->app->singleton('panel::install', function()
         {
             return new \Serverfireteam\Panel\Commands\PanelCommand();
         });
 
-        $this->app['panel::crud'] = $this->app->share(function()
+        $this->app->singleton('panel::crud', function()
         {
             return new \Serverfireteam\Panel\Commands\CrudCommand();
         });
 
-        $this->app['panel::createmodel'] = $this->app->share(function()
+        $this->app->singleton('panel::createmodel', function()
         {
-           $fileSystem = new Filesystem(); 
+         $fileSystem = new Filesystem(); 
 
-           return new \Serverfireteam\Panel\Commands\CreateModelCommand($fileSystem);
+         return new \Serverfireteam\Panel\Commands\CreateModelCommand($fileSystem);
+     });
+
+        $this->app->singleton('panel::createobserver', function()
+        {
+         $fileSystem = new Filesystem(); 
+
+         return new \Serverfireteam\Panel\Commands\CreateModelObserverCommand($fileSystem);
+     });
+
+        $this->app->singleton('panel::createcontroller', function()
+        {
+         $fileSystem = new Filesystem();
+
+         return new \Serverfireteam\Panel\Commands\CreateControllerPanelCommand($fileSystem);
+     });
+
+        $this->app->singleton(LinkProvider::class, function () {
+            return app(config('panel.links') ? ConfigLinkProvider::class : DbLinkProvider::class);
         });
 
-        $this->app['panel::createcontroller'] = $this->app->share(function()
-        {
-           $fileSystem = new Filesystem();
-
-           return new \Serverfireteam\Panel\Commands\CreateControllerPanelCommand($fileSystem);
-        });
+        $loader->alias('Links', LinksFacade::class);
 
         $this->commands('panel::createmodel');
 
+        $this->commands('panel::createobserver');
+        
         $this->commands('panel::createcontroller');
 
         $this->commands('panel::install');
@@ -78,11 +103,11 @@ class PanelServiceProvider extends ServiceProvider
 
         $this->publishes([
             __DIR__ . '/../../../public' => public_path('packages/serverfireteam/panel')
-        ]);
+            ]);
 
         $this->publishes([
             __DIR__.'/config/panel.php' => config_path('panel.php'),
-        ]);
+            ]);
     }
 
     public function boot()
@@ -90,14 +115,15 @@ class PanelServiceProvider extends ServiceProvider
         $this->loadViewsFrom(__DIR__.'/../../views', 'panelViews');
         $this->publishes([
             __DIR__.'/../../views' => base_path('resources/views/vendor/panelViews'),
-        ]);
+            ]);
 
         include __DIR__."/../../routes.php";
 
-	    $this->loadTranslationsFrom(base_path() . '/vendor/serverfireteam/panel/src/lang', 'panel');
+        $this->loadTranslationsFrom(base_path() . '/vendor/serverfireteam/panel/src/lang', 'panel');
         $this->loadTranslationsFrom(base_path() . '/vendor/serverfireteam/rapyd-laravel/lang', 'rapyd');
 
         AliasLoader::getInstance()->alias('Serverfireteam', 'Serverfireteam\Panel\Serverfireteam');
+
 
     }
 

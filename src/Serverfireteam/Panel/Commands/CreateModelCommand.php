@@ -35,6 +35,16 @@ class CreateModelCommand extends GeneratorCommand {
 	{
 		return base_path().'/vendor/serverfireteam/panel/src/Serverfireteam/Panel/stubs/model.stub';
 	}
+	/**
+	 * fire model and observer model class
+	 * @return void
+	 */
+	public function handle()
+	{
+		parent::handle();
+
+        $this->call('panel:createobserver', ['name' => $this->argument('name')]);
+	}
 
 	/**
 	 * Get the default namespace for the class.
@@ -44,7 +54,12 @@ class CreateModelCommand extends GeneratorCommand {
 	 */
 	protected function getDefaultNamespace($rootNamespace)
 	{
-		return $rootNamespace;
+		if (!empty(\Config::get('panel.modelPath'))) {
+			return $rootNamespace . '\\' . \Config::get('panel.modelPath');
+		}
+		else {
+			return $rootNamespace;
+		}
 	}
 
 }

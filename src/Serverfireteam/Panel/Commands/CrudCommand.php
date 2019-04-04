@@ -1,6 +1,7 @@
 <?php namespace Serverfireteam\Panel\Commands;
 
 use Illuminate\Console\Command;
+use Serverfireteam\Panel\Link;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 
@@ -16,7 +17,7 @@ class CrudCommand extends Command {
 	 *
 	 * @var string the statement before installation starts
 	 */
-	protected $description = 'Installs  Panel  migrations, configs, views and assets.';
+	protected $description = 'Create new crud for you';
 
 	/**
 	 * Create a new command instance.
@@ -31,7 +32,7 @@ class CrudCommand extends Command {
 	 * Execute the console command.
 	 *
 	 */
-	public function fire()
+	public function handle()
 	{
        
             $this->info('            [ ServerFireTeam Panel Crud Generator ]       ');
@@ -42,9 +43,11 @@ class CrudCommand extends Command {
             
             $this->call('panel:createcontroller', ['name' => $crudName]);
             
-            $link = new \Serverfireteam\Panel\Link();
-            $link->getAndSave($crudName, $crudName . 's');
-            $link->save();
+            Link::create([
+                'url' => $crudName,
+                'display' => $crudName . 's',
+                'show_menu' => true,
+            ]);
             
             if ( !\Schema::hasTable($crudName) ){
                 $this->info('    The Table Corresponding to this Model does not exist in Database!!       ');
