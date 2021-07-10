@@ -21,7 +21,7 @@ class Admin extends Model implements AuthenticatableContract, CanResetPasswordCo
 	protected $table = 'admins';
     protected $remember_token_name      = 'remember_token';
 
-    protected $fillable = array('first_name', 'last_name', 'email', 'password');
+    protected $fillable = array('first_name', 'last_name', 'email', 'password', 'extradata');
     /**
      * The attributes excluded from the model's JSON form.
      *
@@ -181,17 +181,4 @@ class Admin extends Model implements AuthenticatableContract, CanResetPasswordCo
         return $query->whereRaw('JSON_SEARCH(extradata->"$.' + $key + '", "one", "%'+ $query_value + '%") IS NOT NULL');
         //return $query->where('extradata->' + $key, 'like', '%'+ $query_value + '%');
     }
-
-
-    protected $fillable = array('first_name', 'last_name', 'email', 'password', 'extradata');
-	/**
-	 * The attributes excluded from the model's JSON form.
-	 *
-	 * @var array
-	 */
-	protected $hidden = array('password', 'remember_token');
-
-
-
-
 }
